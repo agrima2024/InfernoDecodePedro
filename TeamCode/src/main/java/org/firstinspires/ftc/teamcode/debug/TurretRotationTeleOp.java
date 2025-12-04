@@ -9,9 +9,11 @@ import org.firstinspires.ftc.teamcode.subSystems.Turret;
 @Configurable
 @TeleOp(name="Turret Rotation Debugger", group="Debug")
 public class TurretRotationTeleOp extends LinearOpMode {
-    public static double cX, cY = 72;
-    public static double cR = 0;
-    public static double tX, tY = 144;
+    public static double robotX = 72;
+    public static double robotY = 72;
+    public static double robotR = 0;
+    public static double targetX = 144;
+    public static double targetY = 144;
 
     @Override
     public void runOpMode() {
@@ -20,7 +22,8 @@ public class TurretRotationTeleOp extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            turret.setRotation(cX, cY, cR, tX, tY);
+            turret.getCurrentRotation();
+            turret.setRotation(robotX, robotY, robotR, targetX, targetY);
             turret.updatePID();
         }
     }

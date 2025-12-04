@@ -2,22 +2,25 @@ package org.firstinspires.ftc.teamcode.subSystems;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+@Configurable
 public class Turret {
 
     private final Motor turretMotor;
     private final Motor encoderMotor;
     private final PIDController pid;
 
-    private static final double P_GAIN = 0.001;
-    private static final double I_GAIN = 0.0001;
-    private static final double D_GAIN = 0.004;
+    public static final double P_GAIN = 0.1;
+    public static final double I_GAIN = 0.0;
+    public static final double D_GAIN = 0.0;
 
-    private static final double MAX_POWER = 1.0;
-    private static final double MIN_POWER = -1.0;
+    public static final double MAX_POWER = 1.0;
+    public static final double MIN_POWER = -1.0;
 
-    private static final double TICKS_PER_REV = 288.0;
+    public static final double TICKS_PER_REV = 537.7;
+    public static final double GEAR_RATIO = 215.0/40.0;
 
     private double newRotation = 0;
 
@@ -50,8 +53,8 @@ public class Turret {
     }
 
     public void setRotation(double cX, double cY, double cR, double tX, double tY) {
-        double currentRotation = getCurrentRotation();
-        double targetRotation = _calculateTurretRotation(cX, cY, cR, tX, tY);
+        double currentRotation = getCurrentRotation() * GEAR_RATIO + cR;
+        double targetRotation = _calculateTurretRotation(cX, cY, cR, tX, tY) * GEAR_RATIO * TICKS_PER_REV;
         double error = targetRotation - currentRotation;
 
         // error is how the turret finds the shortest path and how PID works
@@ -59,13 +62,13 @@ public class Turret {
 
         double proposedTarget = currentRotation + error;
 
-        double maxLimit = TICKS_PER_REV / 6 * 2; // 2/6 of a full rotation, or 120deg from center
-        double minLimit = -TICKS_PER_REV / 6 * 2; // 2/6 of a full rotation, or 120deg from center
+        double maxLimit = TICKS_PER_REV * GEAR_RATIO / 4;
+        double minLimit = -maxLimit;
 
         if (proposedTarget > maxLimit) {
-            proposedTarget -= TICKS_PER_REV; // take long way around
+            proposedTarget = maxLimit;
         } else if (proposedTarget < minLimit) {
-            proposedTarget += TICKS_PER_REV; // take long way around
+            proposedTarget = minLimit;
         }
 
         newRotation = proposedTarget;
