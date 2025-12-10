@@ -13,9 +13,12 @@ public class Shooter {
     public static double CLOSE_HOOD_POS = 0.15;
     public static double FAR_HOOD_POS = 0.15;
 
-    public static double P = 0.3;
-    public static double I = 0.2;
+    public static double P = 0.1; //0.3;
+    public static double I = 0; //0.2;
     public static double D = 0.0;
+
+    public static double V = 1.155;
+    public static double S = 0;
 
     private Servo HOOD_SERVO;
     public final double HOOD_MAX_POS = 0.45;
@@ -42,6 +45,8 @@ public class Shooter {
 
         LEFT_WHEEL.setVeloCoefficients(P, I, D);
         RIGHT_WHEEL.setVeloCoefficients(P, I, D);
+        LEFT_WHEEL.setFeedforwardCoefficients(S, V);
+        RIGHT_WHEEL.setFeedforwardCoefficients(S, V);
 
         RIGHT_WHEEL.setInverted(true);
     }
@@ -77,12 +82,24 @@ public class Shooter {
         LEFT_WHEEL.setVeloCoefficients(P, I, D);
         RIGHT_WHEEL.setVeloCoefficients(P, I, D);
 
+        LEFT_WHEEL.setFeedforwardCoefficients(S, V);
+        RIGHT_WHEEL.setFeedforwardCoefficients(S, V);
+
         LEFT_WHEEL.set(targetVelocity);
         RIGHT_WHEEL.set(targetVelocity);
     }
 
     public double getVelocity() {
-        return (LEFT_WHEEL.getCorrectedVelocity() / LEFT_WHEEL.getRate() + RIGHT_WHEEL.getCorrectedVelocity() / RIGHT_WHEEL.getRate()) / 2.0;
+        double maxTicksPerSec = (6000.0 * 28.0) / 60.0;
+        double currentVelocityTicksPerSecLEFT = LEFT_WHEEL.getCorrectedVelocity();
+        double currentVelocityTicksPerSecRIGHT = RIGHT_WHEEL.getCorrectedVelocity();
+
+        double normalizedVelocity = (currentVelocityTicksPerSecLEFT / maxTicksPerSec) + (currentVelocityTicksPerSecRIGHT / maxTicksPerSec);
+        normalizedVelocity /= 2;
+
+        return normalizedVelocity;
+
+//        return (LEFT_WHEEL.getCorrectedVelocity() / LEFT_WHEEL.getRate() + RIGHT_WHEEL.getCorrectedVelocity() / RIGHT_WHEEL.getRate()) / 2.0;
     }
 
     public class setVelocity extends Task{
