@@ -7,12 +7,14 @@ import com.jumpypants.murphy.util.RobotContext;
 import com.jumpypants.murphy.tasks.Task;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.Interplut;
 import org.firstinspires.ftc.teamcode.MyRobot;
 
 @Configurable
 public class Shooter {
-    private final InterpLUT HOOD_POSITION_LUT = new InterpLUT();
-    private final InterpLUT VELOCITY_LUT = new InterpLUT();
+    private final Interplut HOOD_POSITION_LUT = new Interplut();
+    private final Interplut VELOCITY_LUT = new Interplut();
 
     public static double FAR_SHOOT_VEL = 0.9;
     public static double MID_SHOOT_VEL = 0.8;
@@ -66,7 +68,7 @@ public class Shooter {
 
         HOOD_POSITION_LUT.add(200, FAR_SHOOT_HOOD);
 
-        HOOD_POSITION_LUT.createLUT();
+//        HOOD_POSITION_LUT.createLUT();
 
         VELOCITY_LUT.add(0, CLOSE_SHOOT_VEL);
 
@@ -76,7 +78,7 @@ public class Shooter {
 
         VELOCITY_LUT.add(200, FAR_SHOOT_VEL);
 
-        VELOCITY_LUT.createLUT();
+//        VELOCITY_LUT.createLUT();
     }
 
     public void setVel(double vel) {
