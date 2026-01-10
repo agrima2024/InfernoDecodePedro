@@ -3,16 +3,20 @@ package org.firstinspires.ftc.teamcode.subSystems;
 import com.bylazar.configurables.annotations.Configurable;
 import com.jumpypants.murphy.tasks.ParallelTask;
 import com.jumpypants.murphy.tasks.QueueTask;
+import com.jumpypants.murphy.tasks.SequentialTask;
 import com.jumpypants.murphy.tasks.Task;
+import com.jumpypants.murphy.tasks.WaitTask;
 import com.jumpypants.murphy.util.RobotContext;
 import org.firstinspires.ftc.teamcode.MyRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import java.util.ArrayList;
+
 @Configurable
 public class Transfer {
-    public static double FLAP_TIME_UP_COEFFICIENT = 2;//2;
-    public static double FLAP_TIME_DOWN_COEFFICIENT = 2;//2;
+    public static double FLAP_TIME_UP_COEFFICIENT = 0.15;
+    public static double FLAP_TIME_DOWN_COEFFICIENT = 0.15;
 
     private final Servo rightFlap;
     private final Servo leftFlap;
@@ -100,6 +104,10 @@ public class Transfer {
                         robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)));
             }
 
+            if (robot.GAMEPAD1.circleWasPressed()) {
+                this.addTask(robot.TRANSFER.new SendThreeTask(robot));
+            }
+
             return super.run(robotContextWrapper);
         }
     }
@@ -137,4 +145,42 @@ public class Transfer {
             return true;
         }
     }
+
+    public class SendThreeTask extends QueueTask {
+
+        public SendThreeTask(MyRobot robotContext) {
+            super(robotContext);
+        }
+        @Override
+        protected void initialize(RobotContext robotContext) {
+            super.initialize(robotContext);
+            MyRobot robot = (MyRobot) robotContext;
+
+            // First sample - right flap
+            this.addTask(new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT));
+            this.addTask(new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT));
+
+            // Second sample - left flap
+            this.addTask(new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT));
+            this.addTask(new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT));
+
+            // Third sample - both flaps together
+            this.addTask(new ParallelTask(robotContext, true,
+                    new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
+                    new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT)
+            ));
+            this.addTask(new WaitTask(robotContext, 0.5));
+            this.addTask(new ParallelTask(robotContext, true,
+                    new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
+                    new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
+            ));
+        }
+
+        @Override
+        protected boolean run(RobotContext robotContextWrapper) {
+            return super.run(robotContextWrapper);
+        }
+//
+    }
+
 }
